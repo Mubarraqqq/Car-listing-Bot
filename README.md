@@ -69,5 +69,5 @@ Navigate to `http://127.0.0.1:5000/` in your browser.
 This project is under the MIT License.
 
 ## Contributors
-- **Your Name** - [GitHub Profile](https://github.com/mubarraqqq/)
+- [Mubaraq Onipede](https://github.com/mubarraqqq/)
 
