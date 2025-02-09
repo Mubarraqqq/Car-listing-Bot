@@ -85,33 +85,39 @@ def save_data(data):
         print(f"⚠️ Web interface update failed: {e}")
 
 # Function to Scrape Data
+import pandas as pd  # Import Pandas
+
 def scrape_data():
+    print("🚀 scrape_data() has started running!")
     url = "https://www.pickles.com.au/used/search/lob/salvage?search=m2%2Cm3%2Cm4&page=1&limit=120"
+    listings = []
+
     try:
         driver.get(url)
-        listings = []
-        for i in range(1, 3):
+        for i in range(1, 10):
             try:
                 print(f"⏳ Processing element {i}...")
+
+                # Check if element is found
                 element_xpath = f"/html/body/div[1]/main/section/div/div/section/div/div[{i}]/main/a/section/section[2]/div/pds-button-standard/div/button/p"
                 element = wait.until(EC.element_to_be_clickable((By.XPATH, element_xpath)))
                 element.click()
                 time.sleep(5)
-                
+
                 def safe_get_text(by, selector):
                     try:
                         return driver.find_element(by, selector).text
                     except:
                         return "N/A"
-                
+
                 image = driver.find_element(By.CSS_SELECTOR, 'button.styles_embla-thumbs__slide__number__4FZmu').get_attribute("style")
                 image_url = re.search(r'url\((.*?)\)', image).group(1)
-                
+
                 data = {
                     "VIN": safe_get_text(By.ID, "vin-desktop-only"),
                     "Registration": safe_get_text(By.ID, "registration-desktop-only"),
-                    "Model": driver.find_element(By.XPATH, "//h1").text[5:] if driver.find_element(By.XPATH, "//h1").text else "N/A",
-                    "Year": driver.find_element(By.XPATH, "//h1").text[0:4] if driver.find_element(By.XPATH, "//h1").text else "N/A",
+                    "Model": safe_get_text(By.XPATH, "//h1"),
+                    "Year": safe_get_text(By.XPATH, "//h1")[:4] if safe_get_text(By.XPATH, "//h1") else "N/A",
                     "Engine_Capacity": safe_get_text(By.ID, "engineCapacity-desktop-only"),
                     "Transmission": safe_get_text(By.ID, "transmission-desktop-only"),
                     "Drive_Type": safe_get_text(By.ID, "driveType-desktop-only"),
@@ -125,12 +131,25 @@ def scrape_data():
                     "Watchers": safe_get_text(By.XPATH, "(//span[@class='styles_value__p1VVf'])[2]"),
                     "Image_URL": image_url,
                 }
-                save_data(data)
+
+                print(f"✅ Scraped Data: {data}")  # Debugging print
+
+                listings.append(data)
                 driver.back()
                 time.sleep(3)
-                return listings.append(data)
-            except:
+
+            except Exception as e:
+                print(f"⚠️ Skipping element {i} due to error: {e}")
                 continue
     finally:
         driver.quit()
-scrape_data()
+
+    # Convert the list of dictionaries into a DataFrame
+    df = pd.DataFrame(listings)
+
+    print(f"📢 Final Scraped Data (as DataFrame):\n{df}")  # Debugging print
+    return df  # Return the DataFrame
+
+
+if __name__=='__main__':
+    scrape_data()
