@@ -1,1 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Listings</title>
+    <style>
+        /* Blue Theme */
+        body { font-family: Arial, sans-serif; background-color: #e3f2fd; margin: 0; padding: 20px; text-align: center; }
+        h1 { color: #0d47a1; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #1976d2; color: white; }
+        tr:nth-child(even) { background-color: #bbdefb; }
+        tr:hover { background-color: #90caf9; }
+        button { padding: 12px; margin: 10px; background-color: #1565c0; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0d47a1; }
+        img { max-width: 100px; }
+        #loading { display: none; color: #0d47a1; }
+    </style>
+</head>
+<body>
+    <h1>Car Listings</h1>
+    <button id="scrapeButton">Get Data</button>
+    <button id="refreshButton">Refresh Data</button>
+    <button id="saveButton">Save to Database</button>
+    <p id="loading">⏳ Pulling Data. Please wait ...</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>VIN</th><th>Registration</th><th>Model</th><th>Year</th>
+                <th>Engine</th><th>Transmission</th><th>Drive</th><th>Fuel</th>
+                <th>Cylinders</th><th>Doors</th><th>Color</th><th>Bidding Time</th>
+                <th>Location</th><th>Views</th><th>Watchers</th><th>Image</th>
+            </tr>
+        </thead>
+        <tbody id="listingsTableBody"></tbody>
+    </table>
 
+    <script>
+        function fetchAndUpdateTable() {
+            fetch("/fetch_data")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.listings && data.listings.length > 0) {
+                        console.log("✅ New data retrieved:", data.listings);
+                        updateTable(data.listings);
+                        document.getElementById("loading").style.display = "none"; // Hide loading indicator
+                    } else {
+                        console.warn("⚠ No new data found. Retrying...");
+                        setTimeout(fetchAndUpdateTable, 5000); // Retry in 5 seconds
+                    }
+                })
+                .catch(error => {
+                    console.error("❌ Error fetching data:", error);
+                    setTimeout(fetchAndUpdateTable, 5000); // Retry in 5 seconds
+                });
+        }
+
+        function updateTable(listings) {
+    let tableBody = document.getElementById("listingsTableBody");
+    tableBody.innerHTML = "";
+
+    listings.forEach(car => {
+        let imageUrl = car.Image_URL ? car.Image_URL.trim() : "N/A";
+
+        // Remove extra quotes if they exist
+        if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
+            imageUrl = imageUrl.slice(1, -1);
+        }
+
+        let row = `<tr>
+            <td>${car.VIN || "N/A"}</td>
+            <td>${car.Registration || "N/A"}</td>
+            <td>${car.Model || "N/A"}</td>
+            <td>${car.Year || "N/A"}</td>
+            <td>${car.Engine_Capacity || "N/A"}</td>
+            <td>${car.Transmission || "N/A"}</td>
+            <td>${car.Drive_Type || "N/A"}</td>
+            <td>${car.Fuel || "N/A"}</td>
+            <td>${car.Cylinders || "N/A"}</td>
+            <td>${car.No_of_Doors || "N/A"}</td>
+            <td>${car.Color || "N/A"}</td>
+            <td>${car.Bidding_Time || "N/A"}</td>
+            <td>${car.Location || "N/A"}</td>
+            <td>${car.Views || "0"}</td>
+            <td>${car.Watchers || "0"}</td>
+            <td>
+                ${imageUrl !== "N/A"
+                    ? `<a href=${imageUrl} target="_blank" rel="noopener noreferrer">${imageUrl}</a>`
+                    : "N/A"}
+            </td>
+        </tr>`;
+
+        tableBody.innerHTML += row;
+    });
+}
+
+
+
+
+        function startScraping() {
+            document.getElementById("loading").style.display = "block"; // Show loading indicator
+            fetch("/scrape")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("🚀 Scraping started:", data.message);
+                    fetchAndUpdateTable(); // Start polling for new data
+                })
+                .catch(error => {
+                    console.error("❌ Scraping error:", error);
+                    document.getElementById("loading").style.display = "none"; // Hide loading indicator
+                });
+        }
+
+        document.getElementById("scrapeButton").addEventListener("click", startScraping);
+        document.getElementById("refreshButton").addEventListener("click", fetchAndUpdateTable);
+        
+        document.getElementById("saveButton").addEventListener("click", function () {
+            fetch("/save_to_db", { method: "POST" })
+                .then(response => response.json())
+                .then(data => alert(data.message || "Saved!"))
+                .catch(error => console.error("❌ Error saving data:", error));
+        });
+
+        // Auto-refresh every 5 seconds
+        setInterval(fetchAndUpdateTable, 5000);
+    </script>
+</body>
+</html>
