@@ -5,173 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Listings</title>
     <style>
-        /* Blue Theme Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e3f2fd; /* Light blue background */
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        h1 {
-            color: #0d47a1; /* Dark blue */
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background-color: #1976d2; /* Deep blue */
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #bbdefb; /* Light blue row */
-        }
-
-        tr:hover {
-            background-color: #90caf9; /* Highlight on hover */
-        }
-
-        button {
-            padding: 12px 24px;
-            margin: 20px 0;
-            background-color: #1565c0; /* Blue button */
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #0d47a1; /* Darker blue on hover */
-        }
-
-        img {
-            border-radius: 5px;
-            max-width: 100px;
-        }
+        /* Blue Theme */
+        body { font-family: Arial, sans-serif; background-color: #e3f2fd; margin: 0; padding: 20px; text-align: center; }
+        h1 { color: #0d47a1; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #1976d2; color: white; }
+        tr:nth-child(even) { background-color: #bbdefb; }
+        tr:hover { background-color: #90caf9; }
+        button { padding: 12px; margin: 10px; background-color: #1565c0; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0d47a1; }
+        img { max-width: 100px; }
+        #loading { display: none; color: #0d47a1; }
     </style>
 </head>
 <body>
     <h1>Car Listings</h1>
-
-    <!-- Scrape Button -->
-    <button id="scrapeButton" onclick="startScraping()">Scrape Data</button>
-
-    <!-- Car Listings Table -->
+    <button id="scrapeButton">Get Data</button>
+    <button id="refreshButton">Refresh Data</button>
+    <button id="saveButton">Save to Database</button>
+    <p id="loading">⏳ Pulling Data. Please wait ...</p>
+    
     <table>
         <thead>
             <tr>
-                <th>VIN</th>
-                <th>Registration</th>
-                <th>Model</th>
-                <th>Year</th>
-                <th>Engine Capacity</th>
-                <th>Transmission</th>
-                <th>Drive Type</th>
-                <th>Fuel</th>
-                <th>Cylinders</th>
-                <th>Doors</th>
-                <th>Color</th>
-                <th>Bidding Time</th>
-                <th>Location</th>
-                <th>Views</th>
-                <th>Watchers</th>
-                <th>Image</th>
+                <th>VIN</th><th>Registration</th><th>Model</th><th>Year</th>
+                <th>Engine</th><th>Transmission</th><th>Drive</th><th>Fuel</th>
+                <th>Cylinders</th><th>Doors</th><th>Color</th><th>Bidding Time</th>
+                <th>Location</th><th>Views</th><th>Watchers</th><th>Image</th>
             </tr>
         </thead>
-        <tbody id="listings">
-            <!-- Listings will be dynamically inserted here -->
-            {% for listing in listings %}
-                <tr>
-                    <td>{{ listing[0] }}</td> <!-- VIN -->
-                    <td>{{ listing[1] }}</td> <!-- Registration -->
-                    <td>{{ listing[2] }}</td> <!-- Model -->
-                    <td>{{ listing[3] }}</td> <!-- Year -->
-                    <td>{{ listing[4] }}</td> <!-- Engine Capacity -->
-                    <td>{{ listing[5] }}</td> <!-- Transmission -->
-                    <td>{{ listing[6] }}</td> <!-- Drive Type -->
-                    <td>{{ listing[7] }}</td> <!-- Fuel -->
-                    <td>{{ listing[8] }}</td> <!-- Cylinders -->
-                    <td>{{ listing[9] }}</td> <!-- Doors -->
-                    <td>{{ listing[10] }}</td> <!-- Color -->
-                    <td>{{ listing[11] }}</td> <!-- Bidding Time -->
-                    <td>{{ listing[12] }}</td> <!-- Location -->
-                    <td>{{ listing[13] }}</td> <!-- Views -->
-                    <td>{{ listing[14] }}</td> <!-- Watchers -->
-                    <td><img src="{{ listing[15] }}" alt="Car Image"></td> <!-- Image -->
-                </tr>
-            {% endfor %}
-        </tbody>
+        <tbody id="listingsTableBody"></tbody>
     </table>
 
     <script>
-        // Function to trigger the scraping process
-        function startScraping() {
-            fetch('/scrape')
-                .then(response => response.json())
-                .then(data => {
-                    alert("Scraping Started!");
-                    // Optionally, you can update the page with new data after scraping
-                })
-                .catch(error => {
-                    console.error("Error during scraping:", error);
-                    alert("There was an issue starting the scrape.");
-                });
-        }
-
-        // Function to fetch and display the listings dynamically
-        function fetchListings() {
+        function fetchAndUpdateTable() {
             fetch("/fetch_data")
                 .then(response => response.json())
                 .then(data => {
-                    let listingsDiv = document.getElementById("listings");
-                    listingsDiv.innerHTML = "";  // Clear old data
-                    
-                    data.listings.forEach(listing => {
-                        let div = document.createElement("tr");
-                        div.innerHTML = `
-                            <td>${listing[0]}</td>
-                            <td>${listing[1]}</td>
-                            <td>${listing[2]}</td>
-                            <td>${listing[3]}</td>
-                            <td>${listing[4]}</td>
-                            <td>${listing[5]}</td>
-                            <td>${listing[6]}</td>
-                            <td>${listing[7]}</td>
-                            <td>${listing[8]}</td>
-                            <td>${listing[9]}</td>
-                            <td>${listing[10]}</td>
-                            <td>${listing[11]}</td>
-                            <td>${listing[12]}</td>
-                            <td>${listing[13]}</td>
-                            <td>${listing[14]}</td>
-                            <td><img src="${listing[15]}" alt="Car Image"></td>
-                        `;
-                        listingsDiv.appendChild(div);
-                    });
+                    if (data.listings && data.listings.length > 0) {
+                        console.log("✅ New data retrieved:", data.listings);
+                        updateTable(data.listings);
+                        document.getElementById("loading").style.display = "none"; // Hide loading indicator
+                    } else {
+                        console.warn("⚠ No new data found. Retrying...");
+                        setTimeout(fetchAndUpdateTable, 5000); // Retry in 5 seconds
+                    }
+                })
+                .catch(error => {
+                    console.error("❌ Error fetching data:", error);
+                    setTimeout(fetchAndUpdateTable, 5000); // Retry in 5 seconds
                 });
         }
 
-        // Fetch listings every 5 seconds
-        setInterval(fetchListings, 5000);
+        function updateTable(listings) {
+    let tableBody = document.getElementById("listingsTableBody");
+    tableBody.innerHTML = "";
+
+    listings.forEach(car => {
+        let imageUrl = car.Image_URL ? car.Image_URL.trim() : "N/A";
+
+        // Remove extra quotes if they exist
+        if (imageUrl.startsWith('"') && imageUrl.endsWith('"')) {
+            imageUrl = imageUrl.slice(1, -1);
+        }
+
+        let row = `<tr>
+            <td>${car.VIN || "N/A"}</td>
+            <td>${car.Registration || "N/A"}</td>
+            <td>${car.Model || "N/A"}</td>
+            <td>${car.Year || "N/A"}</td>
+            <td>${car.Engine_Capacity || "N/A"}</td>
+            <td>${car.Transmission || "N/A"}</td>
+            <td>${car.Drive_Type || "N/A"}</td>
+            <td>${car.Fuel || "N/A"}</td>
+            <td>${car.Cylinders || "N/A"}</td>
+            <td>${car.No_of_Doors || "N/A"}</td>
+            <td>${car.Color || "N/A"}</td>
+            <td>${car.Bidding_Time || "N/A"}</td>
+            <td>${car.Location || "N/A"}</td>
+            <td>${car.Views || "0"}</td>
+            <td>${car.Watchers || "0"}</td>
+            <td>
+                ${imageUrl !== "N/A"
+                    ? `<a href=${imageUrl} target="_blank" rel="noopener noreferrer">${imageUrl}</a>`
+                    : "N/A"}
+            </td>
+        </tr>`;
+
+        tableBody.innerHTML += row;
+    });
+}
+
+
+
+
+        function startScraping() {
+            document.getElementById("loading").style.display = "block"; // Show loading indicator
+            fetch("/scrape")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("🚀 Scraping started:", data.message);
+                    fetchAndUpdateTable(); // Start polling for new data
+                })
+                .catch(error => {
+                    console.error("❌ Scraping error:", error);
+                    document.getElementById("loading").style.display = "none"; // Hide loading indicator
+                });
+        }
+
+        document.getElementById("scrapeButton").addEventListener("click", startScraping);
+        document.getElementById("refreshButton").addEventListener("click", fetchAndUpdateTable);
+        
+        document.getElementById("saveButton").addEventListener("click", function () {
+            fetch("/save_to_db", { method: "POST" })
+                .then(response => response.json())
+                .then(data => alert(data.message || "Saved!"))
+                .catch(error => console.error("❌ Error saving data:", error));
+        });
+
+        // Auto-refresh every 5 seconds
+        setInterval(fetchAndUpdateTable, 5000);
     </script>
 </body>
 </html>
