@@ -31,8 +31,9 @@ options = webdriver.ChromeOptions()
 options.add_argument("--headless")  # Ensure it runs without a GUI
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.binary_location = "/usr/bin/chromium-browser"  # Use system Chrome
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
 wait = WebDriverWait(driver, 50)
 
 # Function to Save Data into the Database and Web Interface
