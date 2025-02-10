@@ -27,17 +27,18 @@ def connect_db():
         return None
 
 # Selenium WebDriver Configuration
-options = Options()
-options.binary_location = "/usr/bin/chromium"  # Path to Chrome
-options.add_argument("--headless")  # Run without UI
-options.add_argument("--no-sandbox")  # Security flag
-options.add_argument("--disable-dev-shm-usage")  # Prevent memory issues
-options.add_argument("--disable-gpu")  # Disable GPU (needed for some environments)
 
-# Set up the service
-service = Service("/usr/bin/chromedriver")
 
-# Initialize the WebDriver
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Run in headless mode
+options.add_argument("--no-sandbox")  # Bypass OS security model
+options.add_argument("--disable-dev-shm-usage")  # Overcome limited resources
+options.add_argument("--disable-gpu")  # Disable GPU acceleration
+options.add_argument("--window-size=1920x1080")  # Set a virtual screen size
+options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
+
+# Set up the Chrome WebDriver
+service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 50)
 
