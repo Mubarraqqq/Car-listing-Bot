@@ -1,29 +1,27 @@
-# Use a lightweight Python image
-FROM python:3.12-slim
+# Use an official Python image
+FROM python:3.12
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
     curl \
     chromium \
-    chromium-driver \
-    && rm -rf /var/lib/apt/lists/*
+    chromium-driver 
 
-# Set environment variables
-ENV PATH="/usr/lib/chromium/:$PATH"
-
-# Set working directory
-WORKDIR /app
-
-# Copy the application files
-COPY . .
+# Set Chrome binary path
+ENV CHROME_BIN=/usr/bin/chromium
 
 # Install Python dependencies
+WORKDIR /app
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose the application port
+# Copy the app files
+COPY . .
+
+# Expose Flask port
 EXPOSE 5000
 
-# Run the application
+# Run the app
 CMD ["python", "app.py"]
