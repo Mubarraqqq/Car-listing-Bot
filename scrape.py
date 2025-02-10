@@ -28,14 +28,16 @@ def connect_db():
 
 # Selenium WebDriver Configuration
 options = Options()
-options.binary_location = "/usr/bin/chromium"  # Ensure Selenium finds Chromium
+options.binary_location = "/usr/bin/chromium"  # Path to Chrome
 options.add_argument("--headless")  # Run without UI
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--no-sandbox")  # Security flag
+options.add_argument("--disable-dev-shm-usage")  # Prevent memory issues
+options.add_argument("--disable-gpu")  # Disable GPU (needed for some environments)
 
-# Use the system-installed ChromeDriver
+# Set up the service
 service = Service("/usr/bin/chromedriver")
 
+# Initialize the WebDriver
 driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 50)
 
