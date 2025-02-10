@@ -6,7 +6,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.edge.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import requests
+
 
 # Database Connection
 def connect_db():
@@ -24,13 +26,12 @@ def connect_db():
         return None
 
 # Selenium WebDriver Configuration
-options = Options()
-options.add_argument("--disable-gpu")
-options.add_argument("--disable-software-rasterizer")
-options.add_argument("--headless=new")
-options.add_argument("--log-level=3")
+options = webdriver.ChromeOptions()
+options.add_argument("--headless")  # Ensure it runs without a GUI
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 
-driver = webdriver.Edge(options=options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 wait = WebDriverWait(driver, 50)
 
 # Function to Save Data into the Database and Web Interface
