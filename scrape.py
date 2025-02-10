@@ -27,13 +27,16 @@ def connect_db():
         return None
 
 # Selenium WebDriver Configuration
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")  # Ensure it runs without a GUI
+options = Options()
+options.binary_location = "/usr/bin/chromium"  # Ensure Selenium finds Chromium
+options.add_argument("--headless")  # Run without UI
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
-options.binary_location = "/usr/bin/chromium-browser"  # Use system Chrome
 
-driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
+# Use the system-installed ChromeDriver
+service = Service("/usr/bin/chromedriver")
+
+driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 50)
 
 # Function to Save Data into the Database and Web Interface
