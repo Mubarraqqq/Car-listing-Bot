@@ -168,4 +168,5 @@ def save_to_db():
         conn.close()
 
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True, host="0.0.0.0", port=5050)
+    port = int(os.environ.get("PORT", 5000))  # Use Railway's PORT variable
+    app.run(debug=True, threaded=True, host="0.0.0.0", port=port)
