@@ -1,3 +1,4 @@
+ARG CACHEBUST=1
 # Use an official Python image
 FROM python:3.12
 
