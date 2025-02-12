@@ -43,9 +43,7 @@ options.binary_location = "/usr/bin/chromium"
 
 # Use system-installed ChromeDriver instead of downloading dynamically
 service = Service("/usr/bin/chromedriver")
-driver = webdriver.Chrome(service=service, options=options)
-
-# Function to Save Data into the Database and Web Interface
+driver = webdriver.Chrome(service=service, options=options)# Function to Save Data into the Database and Web Interface
 def save_data(data):
     try:
         db = connect_db()
