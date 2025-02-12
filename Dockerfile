@@ -1,14 +1,14 @@
 # Use an official Python image
 FROM python:3.12
 
-# Install dependencies and tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     unzip \
+    jq \
     chromium \
     chromium-driver \
-    jq \
     && rm -rf /var/lib/apt/lists/*  # Clean up to reduce image size
 
 # Set Chrome and ChromeDriver paths
