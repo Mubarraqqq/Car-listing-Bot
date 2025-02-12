@@ -29,7 +29,8 @@ def connect_db():
 # Selenium WebDriver Configuration
 
 
-options = webdriver.ChromeOptions()
+# Configure Selenium Chrome options
+options = Options()
 options.add_argument("--headless")  # Run in headless mode
 options.add_argument("--no-sandbox")  # Bypass OS security model
 options.add_argument("--disable-dev-shm-usage")  # Overcome limited resources
@@ -37,10 +38,12 @@ options.add_argument("--disable-gpu")  # Disable GPU acceleration
 options.add_argument("--window-size=1920x1080")  # Set a virtual screen size
 options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
 
-# Set up the Chrome WebDriver
-service = Service(ChromeDriverManager().install())
+# Set the Chrome binary path explicitly
+options.binary_location = "/usr/bin/chromium"
+
+# Use system-installed ChromeDriver instead of downloading dynamically
+service = Service("/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=options)
-wait = WebDriverWait(driver, 50)
 
 # Function to Save Data into the Database and Web Interface
 def save_data(data):
