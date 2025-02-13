@@ -17,6 +17,17 @@ RUN apt-get update && apt-get install -y \
 ENV EDGE_BIN=/usr/bin/microsoft-edge-stable
 ENV PATH="/usr/local/bin:$PATH"
 
+# Install Edge WebDriver (Matching Edge Version)
+RUN EDGE_VERSION=$(microsoft-edge-stable --version | awk '{print $3}') \
+    && echo "Detected Edge version: $EDGE_VERSION" \
+    && DRIVER_URL="https://msedgedriver.azureedge.net/$EDGE_VERSION/edgedriver_linux64.zip" \
+    && wget -O /tmp/edgedriver.zip "$DRIVER_URL" \
+    && unzip /tmp/edgedriver.zip -d /usr/local/bin/ \
+    && rm /tmp/edgedriver.zip
+
+# Set permissions for EdgeDriver
+RUN chmod +x /usr/local/bin/msedgedriver
+
 # Set the working directory
 WORKDIR /app
 
