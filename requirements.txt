@@ -6,3 +6,4 @@ urllib3==1.26.13
 gunicorn
 mysql-connector-python
 webdriver-manager==4.0.2
+pandas
