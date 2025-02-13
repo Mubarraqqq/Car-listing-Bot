@@ -25,8 +25,9 @@ RUN EDGE_VERSION=$(microsoft-edge-stable --version | awk '{print $3}') \
     && unzip /tmp/edgedriver.zip -d /usr/local/bin/ \
     && rm /tmp/edgedriver.zip
 
-# Set permissions for EdgeDriver
-RUN chmod +x /usr/local/bin/msedgedriver
+# Ensure EdgeDriver is executable
+RUN chmod +x /usr/local/bin/msedgedriver \
+    && ln -s /usr/local/bin/msedgedriver /usr/bin/msedgedriver
 
 # Set the working directory
 WORKDIR /app
@@ -36,13 +37,13 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Edge WebDriver Manager dependency
-RUN pip install webdriver-manager
+RUN pip install webdriver-manager gunicorn
 
 # Copy the app code
 COPY . .
 
-# Expose the Flask port (if needed)
-EXPOSE 5000
+# Expose Flask port
+EXPOSE 8080
 
-# Run the Flask app
-CMD ["python", "app.py"]
+# Run Flask app with Gunicorn (production-ready)
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "app:app"]
