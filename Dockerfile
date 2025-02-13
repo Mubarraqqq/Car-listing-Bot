@@ -1,39 +1,37 @@
-# Use Python 3.12 official image
+# Use an official Python image
 FROM python:3.12
 
-# Install system dependencies
+# Install Microsoft Edge & EdgeDriver
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
-    unzip \
-    jq \
-    chromium \
-    && rm -rf /var/lib/apt/lists/*
+    gnupg \
+    software-properties-common && \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /usr/share/keyrings/microsoft.gpg > /dev/null && \
+    echo "deb [signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" | tee /etc/apt/sources.list.d/microsoft-edge.list && \
+    apt-get update && apt-get install -y \
+    microsoft-edge-stable && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set environment variables for Chromium
-ENV CHROME_BIN=/usr/bin/chromium
-
-# Manually install ChromeDriver (matching Chromium)
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip && \
-    unzip /tmp/chromedriver.zip -d /usr/local/bin/ && \
-    rm /tmp/chromedriver.zip && \
-    chmod +x /usr/local/bin/chromedriver
-
-# Ensure ChromeDriver is in PATH
+# Set environment variables for Edge
+ENV EDGE_BIN=/usr/bin/microsoft-edge-stable
 ENV PATH="/usr/local/bin:$PATH"
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Install Python dependencies
+# Copy Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Install Edge WebDriver Manager dependency
+RUN pip install webdriver-manager
+
+# Copy the app code
 COPY . .
 
-# Expose Flask port (Railway uses PORT env var)
+# Expose the Flask port (if needed)
 EXPOSE 5000
 
-# Start Flask app
+# Run the Flask app
 CMD ["python", "app.py"]
