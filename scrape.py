@@ -30,20 +30,14 @@ def connect_db():
 
 
 # Configure Selenium Chrome options
-options = Options()
+options = webdriver.EdgeOptions()
 options.add_argument("--headless")  # Run in headless mode
-options.add_argument("--no-sandbox")  # Bypass OS security model
-options.add_argument("--disable-dev-shm-usage")  # Overcome limited resources
-options.add_argument("--disable-gpu")  # Disable GPU acceleration
-options.add_argument("--window-size=1920x1080")  # Set a virtual screen size
-options.add_argument("--remote-debugging-port=9222")  # Enable remote debugging
-
-# Set the Chrome binary path explicitly
-options.binary_location = "/usr/bin/chromium"
-
-# Use system-installed ChromeDriver instead of downloading dynamically
-service = Service("/usr/bin/chromedriver")
-driver = webdriver.Chrome(service=service, options=options)# Function to Save Data into the Database and Web Interface
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+    
+    # Install EdgeDriver and create the driver
+service = EdgeService(EdgeChromiumDriverManager().install())
+driver = webdriver.Edge(service=service, options=options)# Function to Save Data into the Database and Web Interface
 def save_data(data):
     try:
         db = connect_db()
