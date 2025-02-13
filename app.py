@@ -3,6 +3,7 @@ from flask import Flask, render_template, jsonify, request
 import threading
 from scrape import scrape_data  # Import your scraping function
 import pandas as pd
+import os
 
 app = Flask(__name__)
 
