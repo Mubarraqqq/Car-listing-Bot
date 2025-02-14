@@ -42,8 +42,9 @@ RUN pip install webdriver-manager gunicorn
 # Copy the app code
 COPY . .
 
-# Expose Flask port
-EXPOSE 8080
+# Ensure Flask runs on port 5000
+ENV FLASK_RUN_PORT=5000
+EXPOSE 5000
 
-# Run Flask app with Gunicorn (production-ready)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "app:app"]
+# Run Flask app with Gunicorn on port 5000
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
