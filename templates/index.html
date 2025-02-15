@@ -110,6 +110,7 @@
                 })
                 .catch(error => {
                     console.error("❌ Scraping error:", error);
+                    alert("❌ Scraping failed! Check server logs.");
                     document.getElementById("loading").style.display = "none"; // Hide loading indicator
                 });
         }
