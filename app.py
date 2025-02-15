@@ -5,7 +5,7 @@ from scrape import scrape_data  # Import your scraping function
 import pandas as pd
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 
 # Store scraped data in memory before saving to the database
 scraped_data = []
@@ -33,6 +33,10 @@ def connect_db():
 @app.route("/test")
 def test():
     return "✅ Flask is working!", 200
+    
+@app.route("/")
+def home():
+    return render_template("index.html")  # Ensure file exists
 
 @app.route("/")
 def home():
