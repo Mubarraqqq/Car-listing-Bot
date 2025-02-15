@@ -39,7 +39,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Edge WebDriver Manager dependency
 RUN pip install webdriver-manager gunicorn
 
-# Copy the app code
+# **Copy only the templates folder first**  
+COPY templates/ templates/
+
+# Copy the rest of the app code
 COPY . .
 
 # Ensure Flask runs on port 5000
