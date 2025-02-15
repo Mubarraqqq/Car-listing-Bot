@@ -79,6 +79,10 @@ def scrape():
     print("🚀 Scraping function called!", flush=True)
     return jsonify({"message": "Scraping test successful!"}), 200
 '''
+import threading
+import pandas as pd
+from flask import jsonify
+
 @app.route("/scrape", methods=["GET"])
 def scrape():
     """Start scraping in a background thread and return a response immediately."""
@@ -88,23 +92,31 @@ def scrape():
         global scraped_data
         print("🚀 Starting scrape in a separate thread...")
 
-        scraped_data = scrape_data()  # Fetch scraped data
+        try:
+            scraped_data = scrape_data()  # Fetch scraped data
+            
+            # 🔍 Debugging: Check what scrape_data() returned
+            print(f"📢 Type of scraped_data: {type(scraped_data)}")
 
-        # 🔍 Debugging: Check the type of scraped_data
-        print(f"📢 Type of scraped_data: {type(scraped_data)}")  
+            if scraped_data is None:
+                print("🚨 scrape_data() returned None! No data available.")
+                return
+            
+            if isinstance(scraped_data, list):
+                print("⚠️ scraped_data is a list! Converting to DataFrame...")
+                scraped_data = pd.DataFrame(scraped_data)
 
-        if isinstance(scraped_data, list):
-            print("⚠️ scraped_data is a list! Converting to DataFrame...")
-            scraped_data = pd.DataFrame(scraped_data)  
+            print(f"✅ After conversion, type: {type(scraped_data)}")
+            print(scraped_data.head())  # Show first few rows
 
-        print(f"✅ After conversion, type: {type(scraped_data)}")  
-        print(scraped_data.head())  # Show first few rows
+            # Confirm if it's empty safely
+            if hasattr(scraped_data, "empty") and scraped_data.empty:
+                print("🚨 No data scraped! DataFrame is empty.")
 
-        # Confirm if it's empty
-        if scraped_data.empty:
-            print("🚨 No data scraped! DataFrame is empty.")
+            print(f"✅ Scraping finished. {len(scraped_data)} items retrieved.")
 
-        print(f"✅ Scraping finished. {len(scraped_data)} items retrieved.")
+        except Exception as e:
+            print(f"❌ Error during scraping: {e}")
 
     # Start the scrape in a background thread
     thread = threading.Thread(target=scrape_and_store, daemon=True)
