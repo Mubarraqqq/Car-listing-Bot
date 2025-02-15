@@ -32,21 +32,16 @@ def connect_db():
 
 @app.route("/test")
 def test():
-    return "✅ Flask is working!", 200
-    
-@app.route("/")
-def home():
-    return render_template("index.html")  # Ensure file exists
+    return "✅ Flask is working!", 200  # Quick test route
 
 @app.route("/")
 def home():
     """Render the homepage with scraped data."""
     try:
-        return render_template("index.html", listings=scraped_data)
+        return render_template("index.html", listings=scraped_data)  # Ensure index.html exists
     except Exception as e:
         print(f"❌ Error loading template: {e}", flush=True)
-        return "🔥 Flask is running, but index.html has issues.", 200
-
+        return "🔥 Flask is running, but index.html has issues.", 500  # Return a 500 error
 @app.route("/fetch_data", methods=["GET"])
 def fetch_data():
     """Return the latest scraped data instead of dummy data."""
