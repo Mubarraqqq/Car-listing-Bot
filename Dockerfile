@@ -50,4 +50,4 @@ ENV FLASK_RUN_PORT=5000
 EXPOSE 5000
 
 # Run Flask app with Gunicorn on port 5000
-CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
